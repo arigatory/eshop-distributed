@@ -1,0 +1,38 @@
+@Catalog_HostAddress = https://localhost:7040
+
+GET {{Catalog_HostAddress}}/products/
+Accept: application/json
+
+###
+
+GET {{Catalog_HostAddress}}/products/1
+Accept: application/json
+
+###
+
+POST {{Catalog_HostAddress}}/products/
+Content-Type: application/json
+
+{
+    "name": "New Product",
+    "price": 9.99,
+    "description": "This is a new product."
+    
+}
+
+###
+
+PUT {{Catalog_HostAddress}}/products/1
+Content-Type: application/json
+
+{
+    "name": "Updated Product",
+    "price": 19.99
+}
+
+###
+
+DELETE {{Catalog_HostAddress}}/products/1
+Accept: application/json
+
+###
