@@ -7,6 +7,8 @@ builder.Services.AddHttpClient<CatalogApiClient>(client =>
 {
     client.BaseAddress = new("https+http://catalog");
 });
+builder.Services.AddMassTransitWithAssemblies(Assembly.GetExecutingAssembly());
+
 
 builder.Services.AddOpenApi();
 
