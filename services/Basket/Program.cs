@@ -8,7 +8,15 @@ builder.Services.AddHttpClient<CatalogApiClient>(client =>
     client.BaseAddress = new("https+http://catalog");
 });
 builder.Services.AddMassTransitWithAssemblies(Assembly.GetExecutingAssembly());
-
+builder.Services.AddAuthentication()
+    .AddKeycloakJwtBearer(serviceName: "keycloak",
+    realm: "eshop",
+    configureOptions: options =>
+    {
+        options.Audience = "account";
+        options.RequireHttpsMetadata = false;
+    });
+builder.Services.AddAuthorization();
 
 builder.Services.AddOpenApi();
 
@@ -21,6 +29,9 @@ if (app.Environment.IsDevelopment())
 
 app.MapDefaultEndpoints();
 app.MapBasketEndpoints();
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.UseHttpsRedirection();
 
