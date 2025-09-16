@@ -7,7 +7,21 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="..\..\services\Catalog\Models\Product.cs" Link="Models\Product.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Models\" />
+  </ItemGroup>
+
+
+  <ItemGroup>
     <ProjectReference Include="../../aspire/ServiceDefaults/ServiceDefaults.csproj" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <PackageReference Include="Aspire.StackExchange.Redis.OutputCaching" Version="9.4.2" />
   </ItemGroup>
 
 </Project>

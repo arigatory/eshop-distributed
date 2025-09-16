@@ -28,23 +28,24 @@ var keycloak = builder
     .WithDataVolume()
     .WithLifetime(ContainerLifetime.Persistent);
 
-var ollama = builder
-    .AddOllama("ollama", 11434)
-    .WithDataVolume()
-    .WithLifetime(ContainerLifetime.Persistent)
-    .WithOpenWebUI();
+// var ollama = builder
+//     .AddOllama("ollama", 11434)
+//     .WithDataVolume()
+//     .WithLifetime(ContainerLifetime.Persistent)
+//     .WithOpenWebUI();
 
-var llama = ollama.AddModel("llama3.2");
+// var llama = ollama.AddModel("llama3.2");
 
 // Projects
 var catalog = builder
     .AddProject<Projects.Catalog>("catalog")
     .WithReference(catalogDb)
     .WithReference(rabbitMq)
-    .WithReference(llama)
+    // .WithReference(llama)
     .WaitFor(catalogDb)
     .WaitFor(rabbitMq)
-    .WaitFor(llama);
+    // .WaitFor(llama)
+    ;
 
 var basket = builder
     .AddProject<Projects.Basket>("basket")
@@ -58,6 +59,7 @@ var basket = builder
 
 builder.AddProject<Projects.WebApp>("webapp")
     .WithExternalHttpEndpoints()
+    .WithReference(cache)
     .WithReference(catalog)
     .WithReference(basket)
     .WaitFor(catalog)
