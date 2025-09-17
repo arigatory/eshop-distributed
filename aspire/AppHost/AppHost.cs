@@ -1,11 +1,9 @@
-using Aspire.Hosting;
-
 var builder = DistributedApplication.CreateBuilder(args);
 
 // Basic services
 var postgres = builder.AddPostgres("postgres")
     .WithPgAdmin()
-    .WithDataVolume()
+    // .WithDataVolume()
     .WithLifetime(ContainerLifetime.Persistent);
 
 var catalogDb = postgres.AddDatabase("catalogdb");
@@ -14,47 +12,55 @@ var catalogDb = postgres.AddDatabase("catalogdb");
 var cache = builder
     .AddRedis("cache")
     .WithRedisInsight()
-    .WithDataVolume()
+    // .WithDataVolume()
     .WithLifetime(ContainerLifetime.Persistent);
 
-var rabbitMq = builder
+var rabbitmq = builder
     .AddRabbitMQ("rabbitmq")
     .WithManagementPlugin()
-    .WithDataVolume()
+    // .WithDataVolume()
     .WithLifetime(ContainerLifetime.Persistent);
 
 var keycloak = builder
     .AddKeycloak("keycloak", 8080)
-    .WithDataVolume()
+    // .WithDataVolume()
     .WithLifetime(ContainerLifetime.Persistent);
 
-// var ollama = builder
-//     .AddOllama("ollama", 11434)
-//     .WithDataVolume()
-//     .WithLifetime(ContainerLifetime.Persistent)
-//     .WithOpenWebUI();
+if (builder.ExecutionContext.IsRunMode)
+{
+    // Data volumes don't work on ACA for Postgres so only add when running
+    postgres.WithDataVolume();
+    rabbitmq.WithDataVolume();
+    keycloak.WithDataVolume();
+}
 
-// var llama = ollama.AddModel("llama3.2");
+var ollama = builder
+    .AddOllama("ollama", 11434)
+    .WithDataVolume()
+    .WithLifetime(ContainerLifetime.Persistent)
+    .WithOpenWebUI();
+
+var llama = ollama.AddModel("llama3.2");
 
 // Projects
 var catalog = builder
     .AddProject<Projects.Catalog>("catalog")
     .WithReference(catalogDb)
-    .WithReference(rabbitMq)
-    // .WithReference(llama)
+    .WithReference(rabbitmq)
+    .WithReference(llama)
     .WaitFor(catalogDb)
-    .WaitFor(rabbitMq)
-    // .WaitFor(llama)
+    .WaitFor(rabbitmq)
+    .WaitFor(llama)
     ;
 
 var basket = builder
     .AddProject<Projects.Basket>("basket")
     .WithReference(cache)
     .WithReference(catalog)
-    .WithReference(rabbitMq)
+    .WithReference(rabbitmq)
     .WithReference(keycloak)
     .WaitFor(cache)
-    .WaitFor(rabbitMq)
+    .WaitFor(rabbitmq)
     .WaitFor(keycloak);
 
 builder.AddProject<Projects.WebApp>("webapp")
